@@ -1,5 +1,8 @@
 FROM nginx:latest
 
+
+COPY html /user/share/nginx/html
+
 #cria pasta dentro do container
 WORKDIR /app
 
