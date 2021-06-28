@@ -2,38 +2,44 @@ version: '3'
 
 services:
 
+    nginx:
+        build: 
+            context: ./nginx
+            dockerfile: Dockerfile.node.prod
+        container_name: nginx    
+        ports: 
+            - "80:80"
+        networks: 
+            -  net_bethehero    
+        tty: true
+        depends_on: 
+            - app           
+
     app:
         build: 
-            context: node
+            context: ./app2/beTheHero/frontend
+            dockerfile: Dockerfile
         container_name: app
-        entrypoint: dockerize -wait tcp://bd:3306 -timeout 20s docker-entrypoint.sh   
+        entrypoint: yarn start
         networks: 
-            - node_network
-        volumes: 
-            - ./node:/usr/src/app
+            - net_bethehero  
         tty: true 
-        ports: 
-            - "3000:3000"  
         depends_on: 
-            - bd    
+            - api    
     
-    bd:
-        image: mysql:5.7
-        command: --innodb-use-native-aio=0
-        container_name: db
-        restart: always
+    api:
+        build: 
+            context: ./app2/beTheHero/backend
+            dockerfile: Dockerfile
+        container_name: api
+        entrypoint: yarn start-prod
         tty: true
-        volumes: 
-        - ./mysql:/var/lib/mysql
-
-        environment: 
-            - MYSQL_DATABASE=nodedb
-            - MYSQL_ROOT_PASSWORD=root
         networks: 
-            - node_network
+            - net_bethehero
+
         
 networks: 
-    node_network:
+    net_bethehero:
         driver: bridge  
 
          
